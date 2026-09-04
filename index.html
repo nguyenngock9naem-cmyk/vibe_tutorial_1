@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cổng Tra Cứu Điểm Thi Sau Đại Học – Ngành Y Khoa</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Be Vietnam Pro"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            medical: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- SheetJS for Excel support -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- Main Wrapper -->
+  <div class="min-h-screen flex flex-col">
+    
+    <!-- Top Header -->
+    <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl relative overflow-hidden border-b border-blue-800/50">
+      <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)" /></svg>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-4 text-center md:text-left">
+            <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-3xl text-teal-300 shadow-inner flex-shrink-0">
+              <i class="fa-solid fa-staff-snake"></i>
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-teal-300 text-xs font-semibold tracking-wider uppercase border border-teal-400/30 mb-1.5">
+                <i class="fa-solid fa-graduation-cap"></i> Hội Đồng Tuyển Sinh Sau Đại Học
+              </div>
+              <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                CỔNG TRA CỨU ĐIỂM THI SAU ĐẠI HỌC
+              </h1>
+              <p class="text-sm md:text-base text-blue-200 mt-1 font-light">
+                Hệ đào tạo Chuyên khoa & Sau Đại học – Ngành Y Khoa Khóa 2026
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="hidden sm:flex flex-col text-right pr-4 border-r border-white/10 text-xs text-blue-200">
+              <span class="font-medium text-white">Năm đào tạo</span>
+              <span>2026 – 2029</span>
+            </div>
+            <div class="px-4 py-2 rounded-xl bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs font-bold flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping"></span>
+              HỆ THỐNG TRỰC TUYẾN
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div id="tabs-container" class="mt-8 flex flex-wrap gap-2 pt-4 border-t border-white/10">
+          <button class="nav-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 text-white shadow-md transition" data-tab="lookup">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Tra Cứu Cá Nhân</span>
+          </button>
+          <button class="nav-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-white/10 transition" data-tab="stats">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Thống Kê Tổng Quan</span>
+          </button>
+          <button class="nav-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-white/10 transition" data-tab="table">
+            <i class="fa-solid fa-table-list"></i>
+            <span>Bảng Điểm Toàn Thể</span>
+          </button>
+          <button class="nav-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-white/10 transition" data-tab="upload">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Nhập File Excel</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: INDIVIDUAL LOOKUP -->
+      <!-- ========================================== -->
+      <section id="lookup-tab-content" class="space-y-8">
+        
+        <!-- Search Card -->
+        <div id="search-section" class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl relative border border-slate-200/80">
+          <div class="max-w-2xl mx-auto text-center mb-6">
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+              Tra Cứu Kết Quả Điểm Thi Thí Sinh
+            </h2>
+            <p class="text-slate-500 text-sm mt-1.5">
+              Nhập chính xác <strong class="text-blue-700">Mã số học viên (MSHV)</strong> (ví dụ: <code class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">YK2026-0001</code>) hoặc Họ và tên để xem thông tin điểm.
+            </p>
+          </div>
+
+          <!-- Search Input Box -->
+          <div id="search-wrapper" class="max-w-2xl mx-auto relative">
+            <div class="relative flex items-center rounded-2xl shadow-lg shadow-blue-500/5 bg-white border-2 border-blue-500/40 focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
+              <div class="pl-5 text-blue-600 text-xl">
+                <i class="fa-solid fa-id-card-clip"></i>
+              </div>
+              <input 
+                id="mshv-input" 
+                type="text" 
+                placeholder="Nhập MSHV (ví dụ: YK2026-0001) hoặc Họ tên..." 
+                class="w-full py-4 pl-4 pr-12 text-slate-800 font-semibold placeholder:text-slate-400 placeholder:font-normal outline-none bg-transparent text-base sm:text-lg"
+                autocomplete="off"
+              >
+              <!-- Clear button -->
+              <button id="clear-search-btn" class="hidden absolute right-32 text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+              </button>
+              <!-- Search Button -->
+              <button 
+                id="search-btn" 
+                class="mr-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm sm:text-base rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 flex-shrink-0"
+              >
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Tra Cứu</span>
+              </button>
+            </div>
+
+            <!-- Autocomplete Suggestions Dropdown -->
+            <div id="search-suggestions" class="hidden absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-40 overflow-hidden max-h-72 overflow-y-auto"></div>
+          </div>
+
+          <!-- Quick Samples / Shortcuts -->
+          <div id="quick-chips" class="max-w-2xl mx-auto mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
+            <span class="font-medium text-slate-600 flex items-center gap-1">
+              <i class="fa-regular fa-lightbulb text-amber-500"></i> Thử nhanh:
+            </span>
+            <button class="sample-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-700 font-mono font-medium transition" data-mshv="YK2026-0001">YK2026-0001 (7.7đ)</button>
+            <button class="sample-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-700 font-mono font-medium transition" data-mshv="YK2026-0003">YK2026-0003 (9.0đ)</button>
+            <button class="sample-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-700 font-mono font-medium transition" data-mshv="YK2026-0005">YK2026-0005 (4.2đ)</button>
+            <button class="sample-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-700 font-mono font-medium transition" data-mshv="YK2026-0008">YK2026-0008 (9.2đ)</button>
+          </div>
+        </div>
+
+        <!-- Initial Guide Banner (when no search done yet) -->
+        <div id="initial-guide" class="max-w-3xl mx-auto text-center py-10 px-6">
+          <div class="w-20 h-20 mx-auto rounded-3xl bg-blue-100 text-blue-600 flex items-center justify-center text-3xl mb-4 shadow-inner">
+            <i class="fa-solid fa-file-medical"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-700">Sẵn sàng tra cứu thông tin</h3>
+          <p class="text-slate-500 text-sm max-w-md mx-auto mt-2 leading-relaxed">
+            Hệ thống đã nạp sẵn toàn bộ <strong>200 học viên</strong> ngành Y khoa. Vui lòng nhập MSHV ở ô tìm kiếm phía trên để hiển thị thông tin cá nhân và phiếu điểm chi tiết.
+          </p>
+          <div class="mt-6 flex justify-center gap-4 text-xs text-slate-400">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-500"></i> Ngưỡng đậu: Điểm &ge; 5,0</span>
+            <span>•</span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-print text-blue-500"></i> Hỗ trợ in phiếu điểm chuẩn</span>
+          </div>
+        </div>
+
+        <!-- Not Found State -->
+        <div id="not-found-container" class="hidden max-w-2xl mx-auto glass-panel rounded-3xl p-8 text-center border border-rose-200">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-user-slash"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800">Không tìm thấy thông tin thí sinh</h3>
+          <p class="text-slate-500 text-sm mt-2">
+            Không tìm thấy bản ghi nào khớp với mã <strong id="searched-query-text" class="text-rose-600 font-mono"></strong> trong danh sách.
+          </p>
+          <div class="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 text-left space-y-1">
+            <div class="font-bold text-slate-700 mb-1">Gợi ý kiểm tra:</div>
+            <div>• Kiểm tra lại định dạng MSHV (ví dụ: <span class="font-mono font-bold text-blue-600">YK2026-0001</span> đến <span class="font-mono font-bold text-blue-600">YK2026-0200</span>).</div>
+            <div>• Hoặc chuyển sang tab <button onclick="switchTab('table')" class="text-blue-600 underline font-semibold">Bảng Điểm Toàn Thể</button> để duyệt danh sách đầy đủ.</div>
+          </div>
+        </div>
+
+        <!-- Result Section (Profile & Score Card) -->
+        <div id="result-container" class="hidden max-w-3xl mx-auto">
+          
+          <!-- Printable Score Card Container -->
+          <div class="printable-card glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border-2 border-blue-500/30 relative overflow-hidden bg-white">
+            
+            <!-- Background Decorative Stamp / Watermark -->
+            <div class="print-watermark absolute -right-12 -bottom-12 opacity-5 pointer-events-none text-slate-900 select-none">
+              <i class="fa-solid fa-award text-[260px]"></i>
+            </div>
+
+            <!-- Card Header -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b-2 border-slate-100">
+              <div class="flex items-center gap-4">
+                <div id="res-avatar-icon" class="w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
+                  <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <div>
+                  <span class="text-xs font-mono font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+                    MSHV: <span id="res-mshv"></span>
+                  </span>
+                  <h2 id="res-hoten" class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5 tracking-tight"></h2>
+                  <div class="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                    <span id="res-chuyennganh" class="font-medium text-slate-700">Y khoa</span>
+                    <span>•</span>
+                    <span id="res-rank" class="text-indigo-600 font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pass / Fail Badge -->
+              <div class="self-start sm:self-center flex-shrink-0">
+                <div id="res-badge"></div>
+              </div>
+            </div>
+
+            <!-- Student Personal Information Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-b border-slate-100 text-sm">
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5 mb-1">
+                  <i class="fa-regular fa-calendar text-blue-500"></i> Ngày sinh
+                </div>
+                <div id="res-ngaysinh" class="font-bold text-slate-800 text-base"></div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5 mb-1">
+                  <i class="fa-solid fa-venus-mars text-indigo-500"></i> Giới tính
+                </div>
+                <div id="res-gioitinh" class="font-bold text-slate-800 text-base"></div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5 mb-1">
+                  <i class="fa-solid fa-medal text-amber-500"></i> Xếp loại
+                </div>
+                <div id="res-xeploai" class="font-bold text-slate-800 text-base"></div>
+              </div>
+            </div>
+
+            <!-- Score Details Highlight Box -->
+            <div class="py-6 border-b border-slate-100">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-slate-50 border border-blue-100">
+                <div class="text-center sm:text-left">
+                  <div class="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">
+                    ĐIỂM THI ĐÁNH GIÁ NĂNG LỰC
+                  </div>
+                  <div class="text-xs text-slate-500">
+                    Thang điểm 10,0 • Ngưỡng chuẩn đậu: &ge; 5,0 điểm
+                  </div>
+                </div>
+
+                <div class="flex items-baseline gap-2">
+                  <span id="res-diem" class="text-5xl sm:text-6xl font-black text-slate-900 tracking-tight font-mono"></span>
+                  <span class="text-xl font-bold text-slate-400">/ 10</span>
+                </div>
+              </div>
+
+              <!-- Visual Progress Bar for Score -->
+              <div class="mt-4">
+                <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1.5">
+                  <span>0,0</span>
+                  <span class="text-rose-500">4,9 (Rớt)</span>
+                  <span class="text-emerald-600">5,0 (Chuẩn Đậu)</span>
+                  <span class="text-amber-600">8,5 (Giỏi)</span>
+                  <span>10,0</span>
+                </div>
+                <div class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden p-0.5 relative">
+                  <!-- Pass threshold marker line -->
+                  <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-400 z-10 opacity-70"></div>
+                  <div id="res-score-bar" class="h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer / Notes / Signature for Official Print -->
+            <div class="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-slate-500">
+              <div>
+                <div class="font-medium text-slate-700">
+                  <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> Ghi chú: <span id="res-ghichu" class="text-slate-600"></span>
+                </div>
+                <div id="print-timestamp" class="text-slate-400 mt-1 font-mono"></div>
+              </div>
+
+              <div class="text-center sm:text-right hidden print:block mt-6">
+                <div class="font-bold text-slate-800">TM. HỘI ĐỒNG TUYỂN SINH</div>
+                <div class="text-slate-500 italic mt-0.5">Chủ tịch Hội đồng</div>
+                <div class="h-16 flex items-center justify-end">
+                  <span class="font-mono text-xs text-slate-400 italic">(Đã ký điện tử)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Action Buttons (Hidden when printing) -->
+            <div class="action-buttons mt-8 pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <button onclick="copyStudentInfo()" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition flex items-center gap-2 shadow-sm">
+                <i class="fa-regular fa-copy text-blue-600"></i>
+                <span>Sao Chép Kết Quả</span>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <button onclick="document.getElementById('mshv-input').focus()" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold text-sm transition flex items-center gap-2">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <span>Tra Cứu Khác</span>
+                </button>
+                <button onclick="printScoreCard()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition flex items-center gap-2">
+                  <i class="fa-solid fa-print"></i>
+                  <span>In Phiếu Điểm (PDF)</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: OVERVIEW & STATISTICS -->
+      <!-- ========================================== -->
+      <section id="stats-tab-content" class="hidden space-y-8">
+        
+        <!-- Stats Summary Header -->
+        <div>
+          <h2 class="text-2xl font-black text-slate-800 tracking-tight">Thống Kê Tổng Quan Kỳ Tuyển Sinh</h2>
+          <p class="text-slate-500 text-sm mt-1">Báo cáo tổng hợp số liệu và phân bố phổ điểm của các thí sinh dự thi.</p>
+        </div>
+
+        <!-- 4 Top Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          
+          <div class="glass-card rounded-2xl p-5 border border-blue-100 bg-white">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Tổng Số Thí Sinh</span>
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+            <div id="stat-total" class="text-3xl font-black text-slate-900 mt-2 font-mono">200</div>
+            <div class="text-xs text-blue-600 font-medium mt-1">100% hồ sơ đã chấm điểm</div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-emerald-100 bg-white">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Số Lượng Đậu</span>
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+            <div id="stat-pass" class="text-3xl font-black text-emerald-600 mt-2 font-mono">167</div>
+            <div class="text-xs text-slate-500 font-medium mt-1">Tỉ lệ đạt: <strong id="stat-pass-rate" class="text-emerald-700">83.5%</strong></div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-rose-100 bg-white">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Số Lượng Rớt</span>
+              <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-circle-xmark"></i>
+              </div>
+            </div>
+            <div id="stat-fail" class="text-3xl font-black text-rose-600 mt-2 font-mono">33</div>
+            <div class="text-xs text-slate-500 font-medium mt-1">Điểm thi dưới 5,0</div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-amber-100 bg-white">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-600">Điểm Trung Bình</span>
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+            </div>
+            <div id="stat-avg-score" class="text-3xl font-black text-slate-900 mt-2 font-mono">6.52</div>
+            <div class="text-xs text-slate-500 font-medium mt-1">
+              Cao nhất: <strong id="stat-max-score" class="text-amber-600 font-mono">9.8</strong> | Thấp nhất: <strong id="stat-min-score" class="text-rose-600 font-mono">2.1</strong>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Valedictorian & Score Distribution -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Valedictorian Card -->
+          <div class="glass-panel rounded-3xl p-6 border border-amber-200/80 bg-gradient-to-br from-amber-500/10 via-amber-50/50 to-white flex flex-col justify-between">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-4">
+                <i class="fa-solid fa-crown text-amber-500"></i> THỦ KHOA KỲ THI
+              </div>
+              <h3 class="text-xl font-extrabold text-slate-900" id="stat-valedictorian">Đang tính toán...</h3>
+              <p class="text-slate-600 text-xs mt-2 leading-relaxed">
+                Thí sinh có điểm thi cao nhất trong toàn bộ khóa tuyển sinh sau đại học đợt này.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-amber-200/60">
+              <button onclick="switchTab('table')" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-list-ol"></i> Xem Bảng Xếp Hạng
+              </button>
+            </div>
+          </div>
+
+          <!-- Score Distribution Progress Bars -->
+          <div class="lg:col-span-2 glass-panel rounded-3xl p-6 border border-slate-200 bg-white">
+            <h3 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-blue-600"></i> Phân Bố Phổ Điểm Học Viên
+            </h3>
+
+            <div class="space-y-4 text-xs font-medium">
+              <!-- Xuất sắc -->
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-amber-700 font-bold">Xuất sắc (&ge; 8.5 điểm)</span>
+                  <span id="label-xuatsac" class="text-slate-600 font-semibold font-mono">-</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div id="bar-xuatsac" class="h-full bg-amber-500 rounded-full transition-all duration-700" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Khá - Giỏi -->
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-blue-700 font-bold">Khá – Giỏi (7.0 – 8.4 điểm)</span>
+                  <span id="label-khagioi" class="text-slate-600 font-semibold font-mono">-</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div id="bar-khagioi" class="h-full bg-blue-600 rounded-full transition-all duration-700" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Trung bình (Đạt) -->
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-emerald-700 font-bold">Trung bình / Đạt (5.0 – 6.9 điểm)</span>
+                  <span id="label-trungbinh" class="text-slate-600 font-semibold font-mono">-</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div id="bar-trungbinh" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Không đạt (Rớt) -->
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="text-rose-700 font-bold">Không đạt (&lt; 5.0 điểm)</span>
+                  <span id="label-khongdat" class="text-slate-600 font-semibold font-mono">-</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div id="bar-khongdat" class="h-full bg-rose-500 rounded-full transition-all duration-700" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: FULL DIRECTORY / TABLE -->
+      <!-- ========================================== -->
+      <section id="table-tab-content" class="hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Danh Sách Bảng Điểm Toàn Thể</h2>
+            <p class="text-slate-500 text-sm mt-1">Duyệt, tìm kiếm nhanh và xuất báo cáo toàn bộ danh sách thí sinh.</p>
+          </div>
+
+          <!-- Export Excel Button -->
+          <button onclick="exportTableToExcel()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center gap-2 flex-shrink-0">
+            <i class="fa-solid fa-file-excel text-base"></i>
+            <span>Xuất File Excel</span>
+          </button>
+        </div>
+
+        <!-- Table Filters and Search Bar -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <div class="w-full sm:w-72 relative">
+            <input 
+              type="text" 
+              placeholder="Tìm theo MSHV hoặc Họ tên..." 
+              oninput="handleTableSearch(this.value)"
+              class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm outline-none focus:border-blue-500 focus:bg-white transition"
+            >
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
+            <!-- Status Filter -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+              <button class="table-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm transition" data-filter="ALL" onclick="handleTableFilterResult('ALL')">Tất cả</button>
+              <button class="table-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-200 transition" data-filter="Đậu" onclick="handleTableFilterResult('Đậu')">Đậu</button>
+              <button class="table-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-200 transition" data-filter="Rớt" onclick="handleTableFilterResult('Rớt')">Rớt</button>
+            </div>
+
+            <!-- Page Size -->
+            <select onchange="handlePageSizeChange(this.value)" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none">
+              <option value="15">15 dòng / trang</option>
+              <option value="25">25 dòng / trang</option>
+              <option value="50">50 dòng / trang</option>
+              <option value="100">100 dòng / trang</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Table Container -->
+        <div class="glass-panel rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 bg-white">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-100/90 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200 select-none">
+                  <th class="px-4 py-3.5 text-center cursor-pointer hover:bg-slate-200 transition" onclick="handleTableSort('stt')">STT <i class="fa-solid fa-sort text-[10px] text-slate-400 ml-1"></i></th>
+                  <th class="px-4 py-3.5 cursor-pointer hover:bg-slate-200 transition" onclick="handleTableSort('mshv')">MSHV <i class="fa-solid fa-sort text-[10px] text-slate-400 ml-1"></i></th>
+                  <th class="px-4 py-3.5 cursor-pointer hover:bg-slate-200 transition" onclick="handleTableSort('hoTen')">Họ và Tên <i class="fa-solid fa-sort text-[10px] text-slate-400 ml-1"></i></th>
+                  <th class="px-4 py-3.5">Ngày Sinh</th>
+                  <th class="px-4 py-3.5 text-center">Giới Tính</th>
+                  <th class="px-4 py-3.5">Chuyên Ngành</th>
+                  <th class="px-4 py-3.5 text-center cursor-pointer hover:bg-slate-200 transition" onclick="handleTableSort('diemThi')">Điểm Thi <i class="fa-solid fa-sort text-[10px] text-slate-400 ml-1"></i></th>
+                  <th class="px-4 py-3.5 text-center">Kết Quả</th>
+                  <th class="px-4 py-3.5 text-center">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="students-table-body" class="divide-y divide-slate-100 text-sm">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer / Pagination -->
+          <div class="px-6 py-4 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <span id="table-count-info">Hiển thị dữ liệu...</span>
+            <div id="table-pagination" class="flex items-center gap-1.5"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: EXCEL FILE UPLOAD & MANAGEMENT -->
+      <!-- ========================================== -->
+      <section id="upload-tab-content" class="hidden space-y-8 max-w-3xl mx-auto">
+        
+        <div class="text-center">
+          <h2 class="text-2xl font-black text-slate-800 tracking-tight">Cập Nhật / Nhập File Excel Mới</h2>
+          <p class="text-slate-500 text-sm mt-1">Tải lên file Excel (.xlsx, .xls) để thay đổi hoặc bổ sung dữ liệu tra cứu điểm.</p>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-8 border-2 border-dashed border-slate-300 hover:border-blue-500 transition-all bg-white" id="excel-dropzone">
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="hidden">
+          
+          <div class="text-center py-6">
+            <div class="w-16 h-16 mx-auto rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mb-4 shadow-inner">
+              <i class="fa-solid fa-file-arrow-up"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800">Kéo và thả file Excel vào đây</h3>
+            <p class="text-slate-400 text-xs mt-1">Hỗ trợ định dạng .xlsx, .xls chuẩn</p>
+            
+            <div class="mt-6">
+              <button onclick="document.getElementById('excel-file-input').click()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md transition inline-flex items-center gap-2">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Chọn File Từ Máy Tính</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Format Guide & Reset Dataset Button -->
+        <div class="p-6 rounded-2xl bg-blue-50/60 border border-blue-200 text-xs text-slate-700 space-y-3">
+          <div class="font-bold text-blue-900 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-circle-question"></i> Hướng dẫn cấu trúc file Excel:
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Hệ thống tự động nhận diện các cột dựa trên tên tiêu đề cột trong file Excel:
+            <code class="font-bold text-blue-800">MSHV</code> (Mã số), 
+            <code class="font-bold text-blue-800">Họ và tên</code>, 
+            <code class="font-bold text-blue-800">Ngày sinh</code>, 
+            <code class="font-bold text-blue-800">Giới tính</code>, 
+            <code class="font-bold text-blue-800">Chuyên ngành</code>, 
+            <code class="font-bold text-blue-800">Điểm thi</code>, 
+            <code class="font-bold text-blue-800">Kết quả</code> (Đậu/Rớt).
+          </p>
+
+          <div class="pt-3 border-t border-blue-200 flex justify-end">
+            <button id="reset-default-btn" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Khôi Phục 200 Học Viên Gốc</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-12">
+      <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+        <div>
+          <div class="text-white font-bold text-sm">HỆ THỐNG TRA CỨU ĐIỂM THI SAU ĐẠI HỌC</div>
+          <p class="text-slate-500 mt-1">Dữ liệu nguồn: <code class="text-slate-400">du_lieu_mshv_y_khoa_200_dong.xlsx</code></p>
+        </div>
+        <div class="text-slate-500">
+          Phát triển phục vụ tra cứu điểm thi nhanh chóng & chuẩn xác.
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- App Logic & Initial Dataset -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
